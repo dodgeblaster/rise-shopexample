@@ -23,40 +23,6 @@ module.exports = {
     resolvers: {
         Query: {},
         Mutation: {
-            // loginToCashierRegister: [
-            //     {
-            //         type: 'guard',
-            //         pk: '$storeId',
-            //         sk: 'staff_${!sub}'
-            //     },
-            //     {
-            //         type: 'add',
-            //         pk: '$storeId',
-            //         sk: 'cashierStatus_${!sub}',
-            //         status: 'active'
-            //     },
-            //     {
-            //         type: 'db',
-            //         action: 'set'
-            //     }
-            // ],
-            // logoutOfCashierRegister: [
-            //     {
-            //         type: 'guard',
-            //         pk: '$storeId',
-            //         sk: 'staff_${!sub}'
-            //     },
-            //     {
-            //         type: 'add',
-            //         pk: '$storeId',
-            //         sk: 'cashierStatus_${!sub}',
-            //         status: 'inactive'
-            //     },
-            //     {
-            //         type: 'db',
-            //         action: 'set'
-            //     }
-            // ],
             submitPayment: [
                 {
                     type: 'guard',
