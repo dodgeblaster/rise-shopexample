@@ -7,8 +7,8 @@ This project includes:
 -   add a store
 -   add a store manager
 -   add store staff
--   cashier can submit order payment
--   cashier can recieve payment completion status
+-   cashier can submit order payment to existing service in AWS account external to rise framework
+-   cashier can recieve payment completion status from existing service in AWS acount external to rise framework
 -   barista can receive orders
 -   barista can start an order
 -   barista can complete an order
