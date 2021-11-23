@@ -22,8 +22,7 @@ module.exports = {
         type Store {
             pk: String
             sk: String
-            name: String
-            owner: String
+            storeName: String
         }
 
         type Query {

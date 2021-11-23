@@ -6,6 +6,23 @@ module.exports = {
             products: [String]
         }
 
+        type Payment {
+            pk: String
+            sk: String
+            amount: String
+            cashier: String
+            time: String
+            storeId: String
+            products: String
+        }
+
+         type PaymentStatus @aws_iam @aws_cognito_user_pools  {
+            pk: String
+            sk: String
+            status: String
+            time: String
+            statusDetails: String
+        }
 
         input PaymentCompletedInput {
             storeId: String
@@ -15,9 +32,14 @@ module.exports = {
         }
 
         type Mutation {
-            submitPayment(input: PaymentStartedInput): String
-            paymentCompleted(input: PaymentCompletedInput): String
+            submitPayment(input: PaymentStartedInput): Payment
+            paymentCompleted(input: PaymentCompletedInput): PaymentStatus
             @aws_iam 
+        }
+
+         type Subscription {
+            paymentCompletedSub(pk: String): PaymentStatus
+            @aws_subscribe(mutations: ["paymentCompleted"])
         }
     `,
     resolvers: {
@@ -82,7 +104,13 @@ module.exports = {
                     event: 'paymentCompleted',
                     query: `
                         mutation paymentCompleted($input: PaymentCompletedInput) {
-                            paymentCompleted(input: $input)
+                            paymentCompleted(input: $input) {
+                                pk
+                                sk
+                                status
+                                statusDetails
+                                time
+                            }
                         }
                     `,
 

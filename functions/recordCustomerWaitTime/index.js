@@ -5,7 +5,7 @@ const dynamoDb = new AWS.DynamoDB.DocumentClient({
 })
 
 const getEventTime = (list, event) =>
-    list.find((x) => x.sk.includes(event)).time
+    Number(list.find((x) => x.sk.includes(event)).time)
 
 /**
  * This function will:
@@ -19,11 +19,11 @@ module.exports.handler = async (e) => {
         KeyConditionExpression: 'pk = :pk AND begins_with(sk, :sk)',
         ExpressionAttributeValues: {
             ':pk': e.storeId,
-            ':sk': 'order_' + e.paymentId
+            ':sk': e.orderId
         }
     }
     const { Items } = await dynamoDb.query(dbParams).promise()
-    const start = getEventTime(Items, 'added')
+    const start = getEventTime(Items, 'started')
     const end = getEventTime(Items, 'completed')
 
     const metricParams = {

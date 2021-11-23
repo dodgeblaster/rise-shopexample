@@ -1,5 +1,12 @@
 module.exports = {
     schema: `
+        type Order {
+            pk: String
+            sk: String
+            time: String
+            products: String
+        }
+        
         input AddOrderInput {
             storeId: String
             paymentId: String
@@ -7,18 +14,24 @@ module.exports = {
         }
 
         input OrderInput {
-              storeId: String
-            paymentId: String
+            storeId: String
+            orderId: String
         }
 
         input OrdersInput {
             storeId: String
         }
 
-        type Order {
+        type Order @aws_iam @aws_cognito_user_pools {
             pk: String
             sk: String
             products: String
+            time: String
+        }
+
+        type OrderStatus {
+            pk: String
+            sk: String
             time: String
         }
 
@@ -27,15 +40,15 @@ module.exports = {
         }
 
         type Mutation {
-            addOrder(input: AddOrderInput): String
+            addOrder(input: AddOrderInput): Order
             @aws_iam
 
-            startOrder(input:OrderInput ):String
-            completeOrder(input: OrderInput): String
+            startOrder(input:OrderInput ):OrderStatus
+            completeOrder(input: OrderInput): OrderStatus
         }
 
         type Subscription {
-            orderAdded: String
+            orderAdded(pk: String): Order
             @aws_subscribe(mutations: ["addOrder"])
         }
     `,
@@ -81,7 +94,7 @@ module.exports = {
                 {
                     type: 'add',
                     pk: '$storeId',
-                    sk: 'order_${$paymentId}_status_started',
+                    sk: '${$orderId}_status_started',
                     time: '@now'
                 },
                 {
@@ -98,7 +111,7 @@ module.exports = {
                 {
                     type: 'add',
                     pk: '$storeId',
-                    sk: 'order_${$paymentId}_status_completed',
+                    sk: '${$orderId}_status_completed',
                     time: '@now'
                 },
                 {
@@ -119,13 +132,17 @@ module.exports = {
                     event: 'paymentCompleted',
                     query: `
                         mutation addOrder($input: AddOrderInput) {
-                            addOrder(input: $input)
+                            addOrder(input: $input) {
+                                pk
+                                sk
+                                products
+                                time
+                            }
                         }
                     `,
                     variables: {
                         storeId: 'detail.storeId',
-                        paymentId: 'detail.paymentId',
-                        products: 'detail.products'
+                        paymentId: 'detail.paymentId'
                     }
                 }
             ]

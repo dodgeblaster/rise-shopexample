@@ -3,7 +3,11 @@
  * in modules rather than this root module.
  */
 module.exports = {
-    schema: ``,
+    schema: `
+        type Example {
+            id: String
+        }
+    `,
     resolvers: {
         Query: {},
         Mutation: {}
