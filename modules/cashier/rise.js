@@ -9,16 +9,18 @@ module.exports = {
         type Payment {
             pk: String
             sk: String
+            id: String
             amount: String
             cashier: String
             time: String
             storeId: String
-            products: String
+            products: [String]
         }
 
          type PaymentStatus @aws_iam @aws_cognito_user_pools  {
             pk: String
             sk: String
+            id: String
             status: String
             time: String
             statusDetails: String
@@ -26,7 +28,7 @@ module.exports = {
 
         input PaymentCompletedInput {
             storeId: String
-            paymentId: String
+            id: String
             status: String
             statusDetails: String
         }
@@ -53,8 +55,13 @@ module.exports = {
                 },
                 {
                     type: 'add',
+                    id: '@id'
+                },
+                {
+                    type: 'add',
                     pk: '$storeId',
-                    sk: 'payment_@id',
+                    sk: 'payment_${$id}',
+                    id: '$id',
                     amount: '$amount',
                     cashier: '!sub',
                     time: '@now',
@@ -69,7 +76,7 @@ module.exports = {
                     event: 'paymentStarted',
                     data: {
                         storeId: '$storeId',
-                        paymentId: '$sk',
+                        id: '$id',
                         status: 'started',
                         amount: '$amount',
                         cashier: '!sub',
@@ -80,12 +87,9 @@ module.exports = {
             paymentCompleted: [
                 {
                     type: 'add',
-                    pk: 'example'
-                },
-                {
-                    type: 'add',
                     pk: '$storeId',
-                    sk: '${$paymentId}_status',
+                    sk: 'payment_${$id}_status',
+                    id: '$id',
                     status: '$status',
                     time: '@now',
                     statusDetails: '$statusDetails'
@@ -107,6 +111,7 @@ module.exports = {
                             paymentCompleted(input: $input) {
                                 pk
                                 sk
+                                id
                                 status
                                 statusDetails
                                 time
@@ -116,7 +121,7 @@ module.exports = {
 
                     variables: {
                         storeId: 'detail.storeId',
-                        paymentId: 'detail.paymentId',
+                        id: 'detail.id',
                         status: 'detail.status',
                         statusDetails: 'detail.statusDetails'
                     }

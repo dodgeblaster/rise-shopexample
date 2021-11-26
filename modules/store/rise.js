@@ -14,7 +14,7 @@ module.exports = {
 
         type Mutation {
             addStaff(input: AddStaffInput): String
-            removeStaff(input: RemoveStaffInput): String
+            #removeStaff(input: RemoveStaffInput): String
         }
     `,
     resolvers: {
@@ -47,27 +47,27 @@ module.exports = {
                     type: 'function',
                     id: 'sendEmail'
                 }
-            ],
-            removeStaff: [
-                {
-                    type: 'guard',
-                    pk: '$storeId',
-                    sk: 'manager_${!sub}'
-                },
-                {
-                    type: 'users',
-                    action: 'remove'
-                },
-                {
-                    type: 'add',
-                    pk: '$storeId',
-                    sk: '$staffId'
-                },
-                {
-                    type: 'db',
-                    action: 'remove'
-                }
             ]
+            // removeStaff: [
+            //     {
+            //         type: 'guard',
+            //         pk: '$storeId',
+            //         sk: 'manager_${!sub}'
+            //     },
+            //     {
+            //         type: 'users',
+            //         action: 'remove'
+            //     },
+            //     {
+            //         type: 'add',
+            //         pk: '$storeId',
+            //         sk: '$staffId'
+            //     },
+            //     {
+            //         type: 'db',
+            //         action: 'remove'
+            //     }
+            // ]
         }
     }
 }

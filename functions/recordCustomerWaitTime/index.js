@@ -14,18 +14,29 @@ const getEventTime = (list, event) =>
  * - record custom metric into cloudwatch
  */
 module.exports.handler = async (e) => {
+    /**
+     * Get Order Events
+     */
     const dbParams = {
         TableName: 'usertest',
         KeyConditionExpression: 'pk = :pk AND begins_with(sk, :sk)',
         ExpressionAttributeValues: {
             ':pk': e.storeId,
-            ':sk': e.orderId
+            ':sk': 'order_' + e.id
         }
     }
     const { Items } = await dynamoDb.query(dbParams).promise()
+
+    /**
+     * Calculate wait time
+     */
     const start = getEventTime(Items, 'started')
     const end = getEventTime(Items, 'completed')
+    const waitTime = (end - start) / (1000 * 60)
 
+    /**
+     * Record metric
+     */
     const metricParams = {
         MetricData: [
             {
@@ -37,7 +48,7 @@ module.exports.handler = async (e) => {
                     }
                 ],
                 Unit: 'Count',
-                Value: (end - start) / (1000 * 60)
+                Value: waitTime
             }
         ],
         Namespace: e.storeId

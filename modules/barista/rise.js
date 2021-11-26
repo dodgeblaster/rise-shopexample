@@ -4,18 +4,18 @@ module.exports = {
             pk: String
             sk: String
             time: String
-            products: String
+            products: [String]
         }
         
         input AddOrderInput {
             storeId: String
-            paymentId: String
-            statusDetails: String
+            id: String
+            products: [String]
         }
 
         input OrderInput {
             storeId: String
-            orderId: String
+            id: String
         }
 
         input OrdersInput {
@@ -25,13 +25,15 @@ module.exports = {
         type Order @aws_iam @aws_cognito_user_pools {
             pk: String
             sk: String
-            products: String
+            id: String
+            products: [String]
             time: String
         }
 
         type OrderStatus {
             pk: String
             sk: String
+            id: String
             time: String
         }
 
@@ -70,14 +72,11 @@ module.exports = {
             addOrder: [
                 {
                     type: 'add',
-                    pk: 'example'
-                },
-                {
-                    type: 'add',
                     pk: '$storeId',
-                    sk: 'order_${$paymentId}_status_added',
+                    sk: 'order_${$id}_status_added',
+                    id: '$id',
                     time: '@now',
-                    products: 'Products...'
+                    products: '$products'
                 },
                 {
                     type: 'db',
@@ -94,7 +93,8 @@ module.exports = {
                 {
                     type: 'add',
                     pk: '$storeId',
-                    sk: '${$orderId}_status_started',
+                    sk: 'order_${$id}_status_started',
+                    id: '$id',
                     time: '@now'
                 },
                 {
@@ -111,7 +111,8 @@ module.exports = {
                 {
                     type: 'add',
                     pk: '$storeId',
-                    sk: '${$orderId}_status_completed',
+                    sk: 'order_${$id}_status_completed',
+                    id: '$id',
                     time: '@now'
                 },
                 {
@@ -135,6 +136,7 @@ module.exports = {
                             addOrder(input: $input) {
                                 pk
                                 sk
+                                id
                                 products
                                 time
                             }
@@ -142,7 +144,8 @@ module.exports = {
                     `,
                     variables: {
                         storeId: 'detail.storeId',
-                        paymentId: 'detail.paymentId'
+                        id: 'detail.id',
+                        products: 'detail.products'
                     }
                 }
             ]
