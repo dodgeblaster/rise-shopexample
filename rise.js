@@ -1,16 +1,44 @@
-/**
- * In this project, we are defining all schema and resolvers
- * in modules rather than this root module.
- */
 module.exports = {
-    schema: `
-        type Example {
-            id: String
+    schema: `     
+        input AddAdminInput {
+            email: String
+        }
+
+        type Admin {
+            pk: String
+            sk: String
+        }
+
+        type Mutation {
+            addAdmin(input: AddAdminInput): Admin           
         }
     `,
     resolvers: {
-        Query: {},
-        Mutation: {}
+        Mutation: {
+            addAdmin: [
+                {
+                    type: 'users',
+                    action: 'add',
+                    email: '$email'
+                },
+                {
+                    type: 'db',
+                    action: 'set',
+                    input: {
+                        pk: 'admins',
+                        sk: '$userId'
+                    }
+                },
+                {
+                    type: 'function',
+                    name: 'sendEmail',
+                    input: {
+                        email: '$email',
+                        temporaryPassword: '$temporaryPassword'
+                    }
+                }
+            ]
+        }
     },
     config: {
         name: 'usertest',

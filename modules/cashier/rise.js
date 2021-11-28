@@ -45,58 +45,55 @@ module.exports = {
         }
     `,
     resolvers: {
-        Query: {},
         Mutation: {
             submitPayment: [
                 {
                     type: 'guard',
                     pk: '$storeId',
-                    sk: 'staff_${!sub}'
+                    sk: 'staff_{!sub}'
                 },
                 {
                     type: 'add',
                     id: '@id'
                 },
                 {
-                    type: 'add',
-                    pk: '$storeId',
-                    sk: 'payment_${$id}',
-                    id: '$id',
-                    amount: '$amount',
-                    cashier: '!sub',
-                    time: '@now',
-                    products: '$products'
-                },
-                {
                     type: 'db',
-                    action: 'set'
+                    action: 'set',
+                    input: {
+                        pk: '$storeId',
+                        sk: 'payment_{$id}',
+                        id: '$id',
+                        amount: '$amount',
+                        cashier: '!sub',
+                        time: '@now',
+                        products: '$products'
+                    }
                 },
                 {
                     type: 'emit-event',
                     event: 'paymentStarted',
-                    data: {
+                    input: {
                         storeId: '$storeId',
-                        id: '$id',
-                        status: 'started',
-                        amount: '$amount',
-                        cashier: '!sub',
-                        products: '$products'
+                        id: '@output.id',
+                        amount: '@output.amount',
+                        products: '@output.products',
+                        cashier: '@output.cashier',
+                        status: 'started'
                     }
                 }
             ],
             paymentCompleted: [
                 {
-                    type: 'add',
-                    pk: '$storeId',
-                    sk: 'payment_${$id}_status',
-                    id: '$id',
-                    status: '$status',
-                    time: '@now',
-                    statusDetails: '$statusDetails'
-                },
-                {
                     type: 'db',
-                    action: 'set'
+                    action: 'set',
+                    input: {
+                        pk: '$storeId',
+                        sk: 'payment_{$id}_status',
+                        id: '$id',
+                        status: '$status',
+                        time: '@now',
+                        statusDetails: '$statusDetails'
+                    }
                 }
             ]
         },

@@ -1,0 +1,9 @@
+[
+    {
+        "Source": "custom.coffee-core",
+        "DetailType": "paymentCompleted",
+        "Detail": "{\"storeId\":\"*****\",\"id\":\"*****\",\"status\":\"completed\",\"statusDetails\":\"payment has been completed\", \"products\": [\"dark-coffee-37564MNJ6REU\", \"latte-YHYS8NNS69G2\", \"cap-4AGBTMDW52BE\"]}",
+        "EventBusName": "default",
+        "Time": 1637892711
+    }
+]

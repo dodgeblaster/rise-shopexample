@@ -1,73 +1,134 @@
 module.exports = {
     schema: `
+        input AddStoreInput {
+            storeName: String
+        }
+
+        input AddStoreManagerInput {
+            email: String
+            storeId: String
+        }
+
         input AddStaffInput {
             storeId: String
             email: String
             name: String
         }
 
-         input RemoveStaffInput {
-            storeId: String
-            email: String
-            staffId: String
+        type Store {
+            pk: String
+            sk: String
+            storeName: String
+        }
+
+        type Role {
+            pk: String
+            sk: String
+        }
+     
+        type Staff {
+            pk: String
+            sk: String
+            name: String
+        }
+
+        type Query {
+            stores: [Store]
         }
 
         type Mutation {
-            addStaff(input: AddStaffInput): String
-            #removeStaff(input: RemoveStaffInput): String
+            addStore(input: AddStoreInput): Store
+            addStoreManager(input: AddStoreManagerInput): Role
+            addStaff(input: AddStaffInput): Staff
         }
     `,
     resolvers: {
+        Query: {
+            stores: [
+                {
+                    type: 'db',
+                    action: 'list',
+                    input: {
+                        pk: 'stores',
+                        sk: 'store_'
+                    }
+                }
+            ]
+        },
         Mutation: {
+            addStore: [
+                {
+                    type: 'guard',
+                    pk: 'admins',
+                    sk: '!sub'
+                },
+                {
+                    type: 'db',
+                    action: 'set',
+                    input: {
+                        pk: 'stores',
+                        sk: 'store_{@id}',
+                        storeName: '$storeName'
+                    }
+                }
+            ],
+            addStoreManager: [
+                {
+                    type: 'guard',
+                    pk: 'admins',
+                    sk: '!sub'
+                },
+                {
+                    type: 'users',
+                    action: 'add',
+                    email: '$email'
+                },
+                {
+                    type: 'db',
+                    action: 'set',
+                    input: {
+                        pk: '$storeId',
+                        sk: 'manager_{$userId}'
+                    }
+                },
+                {
+                    type: 'function',
+                    name: 'sendEmail',
+                    input: {
+                        email: '$email',
+                        temporaryPassword: '$temporaryPassword'
+                    }
+                }
+            ],
             addStaff: [
                 {
                     type: 'guard',
                     pk: '$storeId',
-                    sk: 'manager_${!sub}'
+                    sk: 'manager_{!sub}'
                 },
                 {
                     type: 'users',
-                    action: 'add'
-                },
-                {
-                    type: 'add',
-                    pk: '$storeId',
-                    sk: 'staff_${#userId}',
-                    name: '$name'
+                    action: 'add',
+                    email: '$email'
                 },
                 {
                     type: 'db',
-                    action: 'set'
-                },
-                {
-                    type: 'add',
-                    temporaryPassword: '#userPassword'
+                    action: 'set',
+                    input: {
+                        pk: '$storeId',
+                        sk: 'staff_{$userId}',
+                        name: '$name'
+                    }
                 },
                 {
                     type: 'function',
-                    id: 'sendEmail'
+                    name: 'sendEmail',
+                    input: {
+                        email: '$email',
+                        temporaryPassword: '$temporaryPassword'
+                    }
                 }
             ]
-            // removeStaff: [
-            //     {
-            //         type: 'guard',
-            //         pk: '$storeId',
-            //         sk: 'manager_${!sub}'
-            //     },
-            //     {
-            //         type: 'users',
-            //         action: 'remove'
-            //     },
-            //     {
-            //         type: 'add',
-            //         pk: '$storeId',
-            //         sk: '$staffId'
-            //     },
-            //     {
-            //         type: 'db',
-            //         action: 'remove'
-            //     }
-            // ]
         }
     }
 }

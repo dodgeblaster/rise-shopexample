@@ -1,12 +1,5 @@
 module.exports = {
     schema: `
-        type Order {
-            pk: String
-            sk: String
-            time: String
-            products: [String]
-        }
-        
         input AddOrderInput {
             storeId: String
             id: String
@@ -22,6 +15,13 @@ module.exports = {
             storeId: String
         }
 
+        type Order {
+            pk: String
+            sk: String
+            time: String
+            products: [String]
+        }
+        
         type Order @aws_iam @aws_cognito_user_pools {
             pk: String
             sk: String
@@ -58,70 +58,72 @@ module.exports = {
         Query: {
             orders: [
                 {
-                    type: 'add',
-                    pk: '$storeId',
-                    sk: 'order_'
-                },
-                {
                     type: 'db',
-                    action: 'list'
+                    action: 'list',
+                    input: {
+                        pk: '{$storeId}_{@today}',
+                        sk: 'order_'
+                    }
                 }
             ]
         },
         Mutation: {
             addOrder: [
                 {
-                    type: 'add',
-                    pk: '$storeId',
-                    sk: 'order_${$id}_status_added',
-                    id: '$id',
-                    time: '@now',
-                    products: '$products'
-                },
-                {
                     type: 'db',
-                    action: 'set'
+                    action: 'set',
+                    input: {
+                        pk: '{$storeId}_{@today}',
+                        pk2: 'order_{$id}',
+                        sk: 'order_{@now}_{$id}_added',
+                        id: '$id',
+                        time: '@now',
+                        products: '$products'
+                    }
                 }
             ],
-
             startOrder: [
                 {
                     type: 'guard',
                     pk: '$storeId',
-                    sk: 'staff_${!sub}'
-                },
-                {
-                    type: 'add',
-                    pk: '$storeId',
-                    sk: 'order_${$id}_status_started',
-                    id: '$id',
-                    time: '@now'
+                    sk: 'staff_{!sub}'
                 },
                 {
                     type: 'db',
-                    action: 'set'
+                    action: 'set',
+                    input: {
+                        pk: '{$storeId}_{@today}',
+                        pk2: 'order_{$id}',
+                        sk: 'order_{@now}_{$id}_started',
+                        id: '$id',
+                        time: '@now'
+                    }
                 }
             ],
             completeOrder: [
                 {
                     type: 'guard',
                     pk: '$storeId',
-                    sk: 'staff_${!sub}'
-                },
-                {
-                    type: 'add',
-                    pk: '$storeId',
-                    sk: 'order_${$id}_status_completed',
-                    id: '$id',
-                    time: '@now'
+                    sk: 'staff_{!sub}'
                 },
                 {
                     type: 'db',
-                    action: 'set'
+                    action: 'set',
+                    input: {
+                        pk: '{$storeId}_{@today}',
+                        pk2: 'order_{$id}',
+                        sk: 'order_{@now}_{$id}_completed',
+                        id: '$id',
+                        time: '@now'
+                    }
                 },
                 {
                     type: 'function',
-                    id: 'recordCustomerWaitTime'
+                    name: 'recordCustomerWaitTime',
+                    input: {
+                        storeId: '$storeId',
+                        id: '$id'
+                    }
                 }
             ]
         },

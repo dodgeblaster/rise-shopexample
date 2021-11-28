@@ -19,10 +19,11 @@ module.exports.handler = async (e) => {
      */
     const dbParams = {
         TableName: 'usertest',
-        KeyConditionExpression: 'pk = :pk AND begins_with(sk, :sk)',
+        KeyConditionExpression: 'pk2 = :pk2 AND begins_with(sk, :sk)',
+        IndexName: 'pk2',
         ExpressionAttributeValues: {
-            ':pk': e.storeId,
-            ':sk': 'order_' + e.id
+            ':pk2': 'order_' + e.id,
+            ':sk': 'order_'
         }
     }
     const { Items } = await dynamoDb.query(dbParams).promise()
